@@ -1,6 +1,24 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_DIRECT_URL",
+    "NEXT_PUBLIC_SITE_URL",
+    "NEXT_PUBLIC_DAILY_DOMAIN",
+    "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY",
+    "OPENAI_API_KEY",
+    "GROK_API_KEY",
+    "GOOGLE_GENERATIVE_AI_API_KEY",
+    "CLAUDE_API_KEY",
+    "DAILY_API_KEY",
+    "RESEND_API_KEY",
+    "SERPER_API_KEY",
+    "PERPLEXITY_API_KEY",
+    "CLOUDCONVERT_API_KEY"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
