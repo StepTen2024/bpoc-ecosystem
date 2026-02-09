@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 // GET /api/comments - Fetch comments for a specific target
 export async function GET(request: NextRequest) {
@@ -37,7 +32,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let query = supabase
+    let query = supabaseAdmin
       .from('comments')
       .select('*')
       .order('created_at', { ascending: false });
@@ -125,7 +120,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: comment, error } = await supabase
+    const { data: comment, error } = await supabaseAdmin
       .from('comments')
       .insert({
         author_id: userId,

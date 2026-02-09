@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 /**
  * GET /api/silos/[slug]
@@ -22,7 +17,7 @@ export async function GET(
     const offset = (page - 1) * limit;
 
     // Get the silo with pillar post
-    const { data: silo, error: siloError } = await supabase
+    const { data: silo, error: siloError } = await supabaseAdmin
       .from('insights_silos')
       .select('*')
       .eq('slug', slug)
@@ -36,7 +31,7 @@ export async function GET(
     // Fetch pillar post if exists
     let pillarPost = null;
     if (silo.pillar_post_id) {
-      const { data: pillar } = await supabase
+      const { data: pillar } = await supabaseAdmin
         .from('insights_posts')
         .select(`
           id,
@@ -66,7 +61,7 @@ export async function GET(
     }
 
     // Get published articles in this silo with pagination (exclude pillar post)
-    let articlesQuery = supabase
+    let articlesQuery = supabaseAdmin
       .from('insights_posts')
       .select(`
         id,
@@ -98,7 +93,7 @@ export async function GET(
     }
 
     // Get related silos (other active silos)
-    const { data: relatedSilos } = await supabase
+    const { data: relatedSilos } = await supabaseAdmin
       .from('insights_silos')
       .select('id, name, slug, description, icon, color')
       .eq('is_active', true)

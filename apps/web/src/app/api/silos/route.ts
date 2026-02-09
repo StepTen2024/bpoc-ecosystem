@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 /**
  * GET /api/silos
@@ -15,7 +10,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const includeCount = searchParams.get('includeCount') !== 'false'; // Default true
 
-    const { data: silos, error } = await supabase
+    const { data: silos, error } = await supabaseAdmin
       .from('insights_silos')
       .select('id, name, slug, description, icon, color, hero_image, seo_title, seo_description')
       .eq('is_active', true)
@@ -30,7 +25,7 @@ export async function GET(req: NextRequest) {
     if (includeCount && silos) {
       const silosWithCounts = await Promise.all(
         silos.map(async (silo) => {
-          const { count } = await supabase
+          const { count } = await supabaseAdmin
             .from('insights_posts')
             .select('*', { count: 'exact', head: true })
             .eq('silo_id', silo.id)

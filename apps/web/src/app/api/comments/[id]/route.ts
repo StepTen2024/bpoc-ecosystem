@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 // GET /api/comments/[id] - Get a single comment
 export async function GET(
@@ -26,7 +21,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const { data: comment, error } = await supabase
+    const { data: comment, error } = await supabaseAdmin
       .from('comments')
       .select('*')
       .eq('id', id)
@@ -63,7 +58,7 @@ export async function PATCH(
     }
 
     // Fetch the comment to check ownership
-    const { data: existingComment, error: fetchError } = await supabase
+    const { data: existingComment, error: fetchError } = await supabaseAdmin
       .from('comments')
       .select('author_id, author_role')
       .eq('id', id)
@@ -118,7 +113,7 @@ export async function PATCH(
       updates.metadata = metadata;
     }
 
-    const { data: comment, error } = await supabase
+    const { data: comment, error } = await supabaseAdmin
       .from('comments')
       .update(updates)
       .eq('id', id)
@@ -152,7 +147,7 @@ export async function DELETE(
     }
 
     // Fetch the comment to check ownership
-    const { data: existingComment, error: fetchError } = await supabase
+    const { data: existingComment, error: fetchError } = await supabaseAdmin
       .from('comments')
       .select('author_id')
       .eq('id', id)
@@ -167,7 +162,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Only the author can delete this comment' }, { status: 403 });
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('comments')
       .delete()
       .eq('id', id);
