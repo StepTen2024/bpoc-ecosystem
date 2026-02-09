@@ -2,107 +2,113 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getUserFromRequest } from '@/lib/supabase/auth';
 
-// GET - Fetch onboarding tasks for candidate's applications
+// Wizard section definitions - the 8 steps
+const WIZARD_SECTIONS = [
+  { key: 'personal_info', title: 'Personal Information', description: 'Verify your personal details', taskType: 'form', icon: 'user' },
+  { key: 'gov_id', title: 'Government IDs', description: 'Upload SSS, TIN, PhilHealth, and Pag-IBIG documents', taskType: 'upload', icon: 'id-card' },
+  { key: 'education', title: 'Educational Background', description: 'Upload highest educational attainment documents', taskType: 'upload', icon: 'graduation-cap' },
+  { key: 'medical', title: 'Medical Certificate', description: 'Upload your medical certificate', taskType: 'upload', icon: 'file-medical' },
+  { key: 'data_privacy', title: 'Data Privacy Consent', description: 'Read and acknowledge the data privacy agreement', taskType: 'acknowledge', icon: 'shield' },
+  { key: 'resume', title: 'Updated Resume', description: 'Upload your most recent resume', taskType: 'upload', icon: 'file-text' },
+  { key: 'signature', title: 'Digital Signature', description: 'Provide your digital signature for documents', taskType: 'sign', icon: 'pen-tool' },
+  { key: 'emergency_contact', title: 'Emergency Contact', description: 'Provide emergency contact information', taskType: 'form', icon: 'phone' },
+];
+
+// GET - Fetch onboarding tasks for candidate
 export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromRequest(request);
 
-    // Get candidate's hired applications
-    const { data: applications, error: appsError } = await supabaseAdmin
-      .from('job_applications')
-      .select(`
-        id,
-        job_id,
-        jobs (
-          title,
-          agency_clients (
-            companies (name)
-          )
-        )
-      `)
-      .eq('candidate_id', user.id)
-      .in('status', ['hired', 'offer_accepted']);
-
-    if (appsError) {
-      console.error('Error fetching applications:', appsError);
-      return NextResponse.json({ error: 'Failed to fetch applications' }, { status: 500 });
-    }
-
-    if (!applications || applications.length === 0) {
-      return NextResponse.json({ tasks: [], progress: { total: 0, completed: 0, pending: 0 } });
-    }
-
-    const applicationIds = applications.map(a => a.id);
-
-    // Get onboarding tasks for these applications
-    const { data: tasks, error: tasksError } = await supabaseAdmin
-      .from('onboarding_tasks')
-      .select('*')
-      .in('application_id', applicationIds)
-      .order('is_required', { ascending: false })
-      .order('due_date', { ascending: true })
-      .order('created_at', { ascending: true });
-
-    if (tasksError) {
-      console.error('Error fetching tasks:', tasksError);
-      return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
-    }
-
-    const taskList = tasks || [];
-
-    // Calculate progress
-    const totalTasks = taskList.length;
-    const completedTasks = taskList.filter(t => t.status === 'approved').length;
-    const pendingTasks = taskList.filter(t => ['pending', 'submitted'].includes(t.status)).length;
-    const overdueTasks = taskList.filter(t => {
-      if (!t.due_date) return false;
-      return new Date(t.due_date) < new Date() && !['approved', 'rejected'].includes(t.status);
-    }).length;
-
-    // Format response - return snake_case (matches database)
-    const formattedTasks = taskList.map(task => {
-      const application = applications.find(a => a.id === task.application_id);
-      return {
-        id: task.id,
-        application_id: task.application_id,
-        job_title: (application?.jobs as any)?.title || 'Unknown Job',
-        company: (application?.jobs as any)?.agency_clients?.companies?.name || 'Unknown Company',
-        task_type: task.task_type,
-        title: task.title,
-        description: task.description,
-        is_required: task.is_required,
-        due_date: task.due_date,
-        status: task.status,
-        submitted_at: task.submitted_at,
-        reviewed_at: task.reviewed_at,
-        reviewer_notes: task.reviewer_notes,
-        created_at: task.created_at,
-      };
-    });
-
-    // Get onboarding status for Day One Confirmation button
-    const { data: onboardingData } = await supabaseAdmin
+    // Get candidate's onboarding record from the wizard table
+    const { data: onboarding, error: onboardingError } = await supabaseAdmin
       .from('candidate_onboarding')
-      .select('employment_started, employment_start_date, start_date')
+      .select('*')
       .eq('candidate_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
 
+    if (onboardingError && onboardingError.code !== 'PGRST116') {
+      console.error('Error fetching onboarding:', onboardingError);
+    }
+
+    // If no onboarding record, check if they have an accepted offer
+    if (!onboarding) {
+      // Check for accepted offer
+      const { data: applications } = await supabaseAdmin
+        .from('job_applications')
+        .select('id, status')
+        .eq('candidate_id', user.id)
+        .in('status', ['offer_accepted', 'hired', 'onboarding']);
+
+      if (!applications || applications.length === 0) {
+        return NextResponse.json({ 
+          tasks: [], 
+          progress: { total: 0, completed: 0, pending: 0, overdue: 0, percentage: 0 },
+          onboardingStatus: null,
+          message: 'No onboarding tasks available yet. Accept a job offer to begin onboarding.'
+        });
+      }
+
+      return NextResponse.json({ 
+        tasks: [], 
+        progress: { total: 0, completed: 0, pending: 0, overdue: 0, percentage: 0 },
+        onboardingStatus: null,
+        message: 'Onboarding is being prepared. Please check back soon.'
+      });
+    }
+
+    // Convert wizard sections to task format
+    const tasks = WIZARD_SECTIONS.map((section, index) => {
+      const statusKey = `${section.key}_status` as keyof typeof onboarding;
+      const status = onboarding[statusKey] as string || 'pending';
+      
+      return {
+        id: `${onboarding.id}-${section.key}`,
+        applicationId: onboarding.job_application_id,
+        jobTitle: onboarding.position || 'New Position',
+        company: onboarding.assigned_client || 'Company',
+        taskType: section.taskType,
+        title: section.title,
+        description: section.description,
+        isRequired: true,
+        dueDate: onboarding.start_date,
+        status: status,
+        submittedAt: status === 'approved' ? onboarding.updated_at : null,
+        reviewedAt: status === 'approved' ? onboarding.updated_at : null,
+        reviewerNotes: (onboarding as any)[`${section.key}_feedback`] || null,
+        createdAt: onboarding.created_at,
+        order: index + 1,
+        icon: section.icon,
+      };
+    });
+
+    // Calculate progress
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(t => t.status === 'approved').length;
+    const pendingTasks = tasks.filter(t => ['pending', 'submitted'].includes(t.status)).length;
+    const overdueTasks = 0; // Could calculate based on start_date
+
     return NextResponse.json({
-      tasks: formattedTasks,
+      tasks,
       progress: {
         total: totalTasks,
         completed: completedTasks,
         pending: pendingTasks,
         overdue: overdueTasks,
-        percentage: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+        percentage: onboarding.completion_percent || Math.round((completedTasks / totalTasks) * 100),
       },
-      onboarding_status: onboardingData ? {
-        employment_started: onboardingData.employment_started || false,
-        employment_start_date: onboardingData.employment_start_date,
-        start_date: onboardingData.start_date,
-      } : null
+      onboardingStatus: {
+        employmentStarted: onboarding.employment_started || false,
+        employmentStartDate: onboarding.employment_start_date,
+        startDate: onboarding.start_date,
+        contractSigned: onboarding.contract_signed || false,
+        isComplete: onboarding.is_complete || false,
+      },
+      onboardingId: onboarding.id,
+      salary: onboarding.basic_salary,
+      position: onboarding.position,
+      company: onboarding.assigned_client,
     });
 
   } catch (error) {

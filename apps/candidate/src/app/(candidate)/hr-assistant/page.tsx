@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Loader2, Send, Book, Sparkles, Scale, ChevronRight, History, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { FormattedAIResponse } from '@/components/hr/FormattedAIResponse';
 
 interface Message {

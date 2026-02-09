@@ -17,24 +17,26 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
-import OnboardingTaskModal from '@/components/candidate/OnboardingTaskModal';
-import { toast } from 'sonner'; // Assuming sonner is used for notifications
+import OnboardingWizardModal from '@/components/candidate/OnboardingWizardModal';
+import { toast } from 'sonner';
 
 interface OnboardingTask {
   id: string;
-  application_id: string;
-  job_title: string;
+  applicationId: string;
+  jobTitle: string;
   company: string;
-  task_type: string;
+  taskType: string;
   title: string;
   description?: string;
-  is_required: boolean;
-  due_date?: string;
+  isRequired: boolean;
+  dueDate?: string;
   status: string;
-  submitted_at?: string;
-  reviewed_at?: string;
-  reviewer_notes?: string;
-  created_at: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  reviewerNotes?: string;
+  createdAt: string;
+  order?: number;
+  icon?: string;
 }
 
 interface Progress {
@@ -46,9 +48,9 @@ interface Progress {
 }
 
 interface OnboardingStatus {
-  employment_started: boolean;
-  employment_start_date: string | null;
-  start_date: string | null;
+  employmentStarted: boolean;
+  employmentStartDate: string | null;
+  startDate: string | null;
 }
 
 export default function OnboardingPage() {
@@ -58,6 +60,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(true);
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus | null>(null);
   const [confirmingStart, setConfirmingStart] = useState(false);
+  const [onboardingId, setOnboardingId] = useState<string | null>(null);
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,7 +85,8 @@ export default function OnboardingPage() {
       if (response.ok) {
         setTasks(data.tasks || []);
         setProgress(data.progress || { total: 0, completed: 0, pending: 0, overdue: 0, percentage: 0 });
-        setOnboardingStatus(data.onboarding_status || null);
+        setOnboardingStatus(data.onboardingStatus || data.onboarding_status || null);
+        setOnboardingId(data.onboardingId || null);
       } else {
         console.error('Failed to fetch tasks:', data.error);
       }
@@ -155,8 +159,8 @@ export default function OnboardingPage() {
     }
   };
 
-  const getTaskIcon = (task_type: string) => {
-    switch (task_type) {
+  const getTaskIcon = (taskType: string) => {
+    switch (taskType) {
       case 'document_upload': return <Upload className="h-5 w-5" />;
       case 'form_fill': return <FileText className="h-5 w-5" />;
       case 'e_sign': return <PenTool className="h-5 w-5" />;
@@ -165,8 +169,8 @@ export default function OnboardingPage() {
     }
   };
 
-  const getStatusBadge = (status: string, due_date?: string) => {
-    const isOverdue = due_date && new Date(due_date) < new Date() && status !== 'approved' && status !== 'submitted';
+  const getStatusBadge = (status: string, dueDate?: string) => {
+    const isOverdue = dueDate && new Date(dueDate) < new Date() && status !== 'approved' && status !== 'submitted';
 
     if (isOverdue) {
       return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Overdue</Badge>;
@@ -264,7 +268,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Day One Confirmation Button */}
-          {onboardingStatus && onboardingStatus.start_date && !onboardingStatus.employment_started && (
+          {onboardingStatus && onboardingStatus.startDate && !onboardingStatus.employmentStarted && (
             <div className="mt-6 p-4 rounded-lg bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -298,14 +302,14 @@ export default function OnboardingPage() {
           )}
 
           {/* Employment Started Confirmation */}
-          {onboardingStatus && onboardingStatus.employment_started && (
+          {onboardingStatus && onboardingStatus.employmentStarted && (
             <div className="mt-6 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
               <div className="flex items-center gap-3">
                 <CheckCircle className="h-6 w-6 text-emerald-400 shrink-0" />
                 <div>
                   <h4 className="text-white font-semibold">Employment Started</h4>
                   <p className="text-sm text-gray-300">
-                    First day confirmed on {new Date(onboardingStatus.employment_start_date!).toLocaleDateString()}
+                    First day confirmed on {new Date(onboardingStatus.employmentStartDate!).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -317,7 +321,7 @@ export default function OnboardingPage() {
       {/* Tasks List */}
       <div className="space-y-4">
         {tasks.map((task, index) => {
-          const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'approved' && task.status !== 'submitted';
+          const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'approved' && task.status !== 'submitted';
 
           return (
             <motion.div
@@ -342,7 +346,7 @@ export default function OnboardingPage() {
                         ? 'bg-emerald-500/20 text-emerald-400' 
                         : 'bg-orange-500/20 text-orange-400'}
                     `}>
-                      {getTaskIcon(task.task_type)}
+                      {getTaskIcon(task.taskType)}
                     </div>
 
                     {/* Content */}
@@ -351,16 +355,16 @@ export default function OnboardingPage() {
                         <div>
                           <h3 className="text-lg font-semibold text-white flex items-center gap-2 flex-wrap">
                             {task.title}
-                            {task.is_required && (
+                            {task.isRequired && (
                               <Badge className="bg-red-500/20 text-red-400 text-xs border-none">Required</Badge>
                             )}
                           </h3>
                           <p className="text-sm text-gray-400">
-                            {task.job_title} at {task.company}
+                            {task.jobTitle} at {task.company}
                           </p>
                         </div>
                         <div className="shrink-0">
-                          {getStatusBadge(task.status, task.due_date)}
+                          {getStatusBadge(task.status, task.dueDate)}
                         </div>
                       </div>
 
@@ -369,24 +373,24 @@ export default function OnboardingPage() {
                       )}
 
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-                        {task.due_date && (
+                        {task.dueDate && (
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            Due: {new Date(task.due_date).toLocaleDateString()}
+                            Due: {new Date(task.dueDate).toLocaleDateString()}
                           </div>
                         )}
-                        {task.submitted_at && (
+                        {task.submittedAt && (
                           <div className="flex items-center gap-1">
                             <CheckCircle className="h-4 w-4" />
-                            Submitted {new Date(task.submitted_at).toLocaleDateString()}
+                            Submitted {new Date(task.submittedAt).toLocaleDateString()}
                           </div>
                         )}
                       </div>
 
-                      {task.reviewer_notes && (
+                      {task.reviewerNotes && (
                         <div className="mt-3 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                           <p className="text-sm text-cyan-300">
-                            <strong>Feedback:</strong> {task.reviewer_notes}
+                            <strong>Feedback:</strong> {task.reviewerNotes}
                           </p>
                         </div>
                       )}
@@ -412,12 +416,13 @@ export default function OnboardingPage() {
       </div>
 
       {/* Task Submission Modal */}
-      {selectedTask && (
-        <OnboardingTaskModal
+      {selectedTask && onboardingId && (
+        <OnboardingWizardModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           task={selectedTask}
-          onSubmit={handleTaskSubmit}
+          onboardingId={onboardingId}
+          onComplete={() => fetchTasks()}
         />
       )}
     </div>

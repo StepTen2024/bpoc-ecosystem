@@ -58,46 +58,46 @@ interface Contract {
   };
   compensation: {
     salary: number;
-    salary_type: string;
+    salaryType: string;
     currency: string;
-    payment_schedule: string;
+    paymentSchedule: string;
     benefits: string[];
   };
   period: {
-    start_date: string;
-    probationary_period: string;
-    end_date: string | null;
+    startDate: string;
+    probationaryPeriod: string;
+    endDate: string | null;
     type: string;
   };
-  working_hours: {
-    regular_hours: string;
-    weekly_hours: string;
-    rest_days: string;
+  workingHours: {
+    regularHours: string;
+    weeklyHours: string;
+    restDays: string;
     overtime: string;
   };
-  dole_terms: Record<string, string>;
+  doleTerms: Record<string, string>;
   termination: Record<string, string>;
-  additional_terms: string;
+  additionalTerms: string;
   signatures: {
     candidate: {
       signed: boolean;
-      signed_at?: string;
-      signatory_name?: string;
-      certificate_id?: string;
-      document_hash?: string;
+      signedAt?: string;
+      signatoryName?: string;
+      certificateId?: string;
+      documentHash?: string;
     };
     employer: {
       signed: boolean;
-      signed_by?: string;
+      signedBy?: string;
     };
   };
-  legal_compliance: {
-    compliant_with: string;
+  legalCompliance: {
+    compliantWith: string;
     jurisdiction: string;
-    applicable_laws: string[];
+    applicableLaws: string[];
   };
   metadata: {
-    application_id: string;
+    applicationId: string;
     offerId: string;
     jobId: string;
     candidateId: string;
@@ -154,14 +154,14 @@ export default function CandidateContractViewPage() {
     }
   }
 
-  async function handleSignContract(signatureData: { signatory_name: string; signature_method: string }) {
+  async function handleSignContract(signatureData: { signatoryName: string; signatureMethod: string }) {
     setSigning(true);
     try {
       const token = await getSessionToken();
       if (!token) throw new Error('Not authenticated');
 
       // Generate consent text
-      const consentText = `I, ${signatureData.signatory_name}, hereby accept and agree to all terms and conditions stated in this employment contract. I understand that this constitutes a legally binding agreement under Philippine law (Republic Act 8792 - E-Commerce Act of 2000). I confirm that I have read, understood, and voluntarily agree to the employment terms for the position of ${contract?.position.title} with compensation of ${contract?.compensation.currency} ${contract?.compensation.salary.toLocaleString()} per ${contract?.compensation.salary_type}.`;
+      const consentText = `I, ${signatureData.signatoryName}, hereby accept and agree to all terms and conditions stated in this employment contract. I understand that this constitutes a legally binding agreement under Philippine law (Republic Act 8792 - E-Commerce Act of 2000). I confirm that I have read, understood, and voluntarily agree to the employment terms for the position of ${contract?.position.title} with compensation of ${contract?.compensation.currency} ${contract?.compensation.salary.toLocaleString()} per ${contract?.compensation.salaryType}.`;
 
       const response = await fetch(`/api/contracts/${applicationId}/sign`, {
         method: 'POST',
@@ -170,8 +170,8 @@ export default function CandidateContractViewPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          signatory_name: signatureData.signatory_name,
-          signature_method: signatureData.signature_method,
+          signatoryName: signatureData.signatoryName,
+          signatureMethod: signatureData.signatureMethod,
           consentText: consentText,
         }),
       });
@@ -381,7 +381,7 @@ export default function CandidateContractViewPage() {
                 <div>
                   <h3 className="font-semibold text-white">DOLE Compliant Contract</h3>
                   <p className="text-sm text-gray-400 mt-1">
-                    {contract.legal_compliance.compliant_with} • {contract.legal_compliance.jurisdiction}
+                    {contract.legalCompliance.compliantWith} • {contract.legalCompliance.jurisdiction}
                   </p>
                 </div>
               </div>
@@ -493,12 +493,12 @@ export default function CandidateContractViewPage() {
                     <p className="text-2xl font-bold text-white">
                       {contract.compensation.currency} {contract.compensation.salary.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-400 capitalize">{contract.compensation.salary_type}</p>
+                    <p className="text-sm text-gray-400 capitalize">{contract.compensation.salaryType}</p>
                   </div>
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm mb-2">Payment Schedule:</p>
-                  <p className="text-white">{contract.compensation.payment_schedule}</p>
+                  <p className="text-white">{contract.compensation.paymentSchedule}</p>
                 </div>
                 {contract.compensation.benefits.length > 0 && (
                   <div>
@@ -528,12 +528,12 @@ export default function CandidateContractViewPage() {
                 <div>
                   <span className="text-gray-400">Start Date:</span>
                   <p className="text-white font-medium">
-                    {new Date(contract.period.start_date).toLocaleDateString()}
+                    {new Date(contract.period.startDate).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
                   <span className="text-gray-400">Probationary Period:</span>
-                  <p className="text-white">{contract.period.probationary_period}</p>
+                  <p className="text-white">{contract.period.probationaryPeriod}</p>
                 </div>
                 <div>
                   <span className="text-gray-400">Employment Type:</span>
@@ -551,7 +551,7 @@ export default function CandidateContractViewPage() {
                 Philippine Labor Code Protections
               </h3>
               <div className="space-y-3 text-sm">
-                {Object.entries(contract.dole_terms).map(([key, value]) => (
+                {Object.entries(contract.doleTerms).map(([key, value]) => (
                   <div key={key} className="flex items-start gap-2 p-3 bg-white/5 rounded-lg">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
                     <div>
@@ -571,7 +571,7 @@ export default function CandidateContractViewPage() {
             <CardContent className="p-6">
               <h3 className="font-semibold text-white mb-4">Working Hours</h3>
               <div className="grid md:grid-cols-2 gap-4 text-sm">
-                {Object.entries(contract.working_hours).map(([key, value]) => (
+                {Object.entries(contract.workingHours).map(([key, value]) => (
                   <div key={key}>
                     <span className="text-gray-400 capitalize">
                       {key.replace(/([A-Z])/g, ' $1').trim()}:
@@ -619,12 +619,12 @@ export default function CandidateContractViewPage() {
                       <p className="text-white font-medium">Your Signature</p>
                       {contract.signatures.candidate.signed ? (
                         <div className="mt-2 space-y-1 text-sm">
-                          <p className="text-emerald-400">✓ Signed by {contract.signatures.candidate.signatory_name}</p>
+                          <p className="text-emerald-400">✓ Signed by {contract.signatures.candidate.signatoryName}</p>
                           <p className="text-gray-400">
-                            {new Date(contract.signatures.candidate.signed_at!).toLocaleString()}
+                            {new Date(contract.signatures.candidate.signedAt!).toLocaleString()}
                           </p>
                           <p className="text-xs text-gray-500 font-mono">
-                            Certificate: {contract.signatures.candidate.certificate_id}
+                            Certificate: {contract.signatures.candidate.certificateId}
                           </p>
                         </div>
                       ) : (
@@ -652,7 +652,7 @@ export default function CandidateContractViewPage() {
                     <div>
                       <p className="text-white font-medium">Employer Signature</p>
                       <p className="text-gray-400 text-sm mt-1">
-                        {contract.signatures.employer.signed_by || contract.employer.name}
+                        {contract.signatures.employer.signedBy || contract.employer.name}
                       </p>
                     </div>
                   </div>
@@ -666,7 +666,7 @@ export default function CandidateContractViewPage() {
             <CardContent className="p-6">
               <h3 className="font-semibold text-white mb-3 text-sm">Applicable Laws & Regulations</h3>
               <div className="flex flex-wrap gap-2">
-                {contract.legal_compliance.applicable_laws.map((law, idx) => (
+                {contract.legalCompliance.applicableLaws.map((law, idx) => (
                   <span
                     key={idx}
                     className="px-3 py-1 bg-cyan-500/20 border border-cyan-500/30 rounded-full text-xs text-cyan-300"
@@ -699,9 +699,9 @@ export default function CandidateContractViewPage() {
               position: contract?.position.title || '',
               salary: contract?.compensation.salary || 0,
               currency: contract?.compensation.currency || 'PHP',
-              salary_type: contract?.compensation.salary_type || 'month',
+              salaryType: contract?.compensation.salaryType || 'month',
             }}
-            candidate_name={contract?.employee.name || ''}
+            candidateName={contract?.employee.name || ''}
             onSignatureComplete={handleSignContract}
             signing={signing}
           />
@@ -718,25 +718,25 @@ interface ContractSignatureCaptureProps {
     position: string;
     salary: number;
     currency: string;
-    salary_type: string;
+    salaryType: string;
   };
-  candidate_name: string;
-  onSignatureComplete: (data: { signatory_name: string; signature_method: string }) => void;
+  candidateName: string;
+  onSignatureComplete: (data: { signatoryName: string; signatureMethod: string }) => void;
   signing: boolean;
 }
 
 function ContractSignatureCapture({
   applicationId,
   contractDetails,
-  candidate_name,
+  candidateName,
   onSignatureComplete,
   signing,
 }: ContractSignatureCaptureProps) {
   const [step, setStep] = useState<'consent' | 'confirm'>('consent');
-  const [fullName, setFullName] = useState(candidate_name);
+  const [fullName, setFullName] = useState(candidateName);
   const [hasReadTerms, setHasReadTerms] = useState(false);
 
-  const consentText = `I, ${fullName || '[Your Name]'}, hereby accept and agree to all terms and conditions stated in this employment contract. I understand that this constitutes a legally binding agreement under Philippine law (Republic Act 8792 - E-Commerce Act of 2000). I confirm that I have read, understood, and voluntarily agree to the employment terms for the position of ${contractDetails.position} with compensation of ${contractDetails.currency} ${contractDetails.salary.toLocaleString()} per ${contractDetails.salary_type}.`;
+  const consentText = `I, ${fullName || '[Your Name]'}, hereby accept and agree to all terms and conditions stated in this employment contract. I understand that this constitutes a legally binding agreement under Philippine law (Republic Act 8792 - E-Commerce Act of 2000). I confirm that I have read, understood, and voluntarily agree to the employment terms for the position of ${contractDetails.position} with compensation of ${contractDetails.currency} ${contractDetails.salary.toLocaleString()} per ${contractDetails.salaryType}.`;
 
   const handleSign = () => {
     if (!fullName.trim()) {
@@ -750,8 +750,8 @@ function ContractSignatureCapture({
     }
 
     onSignatureComplete({
-      signatory_name: fullName,
-      signature_method: 'click_to_sign',
+      signatoryName: fullName,
+      signatureMethod: 'click_to_sign',
     });
   };
 
@@ -792,7 +792,7 @@ function ContractSignatureCapture({
                   <div className="flex justify-between">
                     <span className="text-gray-400">Compensation:</span>
                     <span className="text-emerald-400 font-semibold">
-                      {contractDetails.currency} {contractDetails.salary.toLocaleString()} / {contractDetails.salary_type}
+                      {contractDetails.currency} {contractDetails.salary.toLocaleString()} / {contractDetails.salaryType}
                     </span>
                   </div>
                 </div>

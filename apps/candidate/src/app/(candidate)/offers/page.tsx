@@ -28,33 +28,33 @@ import { ESignatureCapture } from '@/components/shared/offer/ESignatureCapture';
 
 interface CounterOffer {
   id: string;
-  requested_salary: number;
-  requested_currency: string;
-  candidate_message?: string;
-  employer_response?: string;
-  response_type?: string;
+  requestedSalary: number;
+  requestedCurrency: string;
+  candidateMessage?: string;
+  employerResponse?: string;
+  responseType?: string;
   status: string;
-  created_at: string;
-  responded_at?: string;
+  createdAt: string;
+  respondedAt?: string;
 }
 
 interface Offer {
   id: string;
-  job_id: string;
-  job_title: string;
+  jobId: string;
+  jobTitle: string;
   company: string;
-  salary_offered: number;
-  salary_type: string;
+  salaryOffered: number;
+  salaryType: string;
   currency: string;
-  start_date?: string;
+  startDate?: string;
   benefits: string[];
-  additional_terms?: string;
+  additionalTerms?: string;
   status: string;
-  sent_at?: string;
-  expires_at?: string;
-  created_at: string;
-  counter_offers?: CounterOffer[];
-  latest_counter?: CounterOffer | null;
+  sentAt?: string;
+  expiresAt?: string;
+  createdAt: string;
+  counterOffers?: CounterOffer[];
+  latestCounter?: CounterOffer | null;
 }
 
 export default function CandidateOffersPage() {
@@ -125,7 +125,7 @@ export default function CandidateOffersPage() {
   };
 
   const formatSalary = (offer: Offer) => {
-    const formatted = Number(offer.salary_offered).toLocaleString();
+    const formatted = Number(offer.salaryOffered).toLocaleString();
     return `${offer.currency} ${formatted}`;
   };
 
@@ -262,7 +262,7 @@ export default function CandidateOffersPage() {
                     <CardContent className="p-6">
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-4">
                         <div>
-                          <h3 className="text-lg sm:text-xl font-semibold text-white mb-1">{offer.job_title}</h3>
+                          <h3 className="text-lg sm:text-xl font-semibold text-white mb-1">{offer.jobTitle}</h3>
                           <div className="flex items-center gap-2 text-gray-400">
                             <Building2 className="h-4 w-4" />
                             <span>{offer.company}</span>
@@ -279,17 +279,17 @@ export default function CandidateOffersPage() {
                           </div>
                           <p className="text-xl sm:text-2xl font-bold text-emerald-400">
                             {formatSalary(offer)}
-                            <span className="text-sm font-normal text-gray-400">/{offer.salary_type}</span>
+                            <span className="text-sm font-normal text-gray-400">/{offer.salaryType}</span>
                           </p>
                         </div>
-                        {offer.start_date && (
+                        {offer.startDate && (
                           <div className="p-4 rounded-lg bg-white/5">
                             <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                               <Calendar className="h-4 w-4" />
                               Start Date
                             </div>
                             <p className="text-lg font-semibold text-white">
-                              {new Date(offer.start_date).toLocaleDateString('en-US', {
+                              {new Date(offer.startDate).toLocaleDateString('en-US', {
                                 month: 'long',
                                 day: 'numeric',
                                 year: 'numeric'
@@ -312,15 +312,15 @@ export default function CandidateOffersPage() {
                         </div>
                       )}
 
-                      {offer.additional_terms && (
+                      {offer.additionalTerms && (
                         <div className="mb-6 p-3 rounded-lg bg-white/5">
                           <p className="text-gray-400 text-sm mb-1">Additional Terms:</p>
-                          <p className="text-gray-300 text-sm">{offer.additional_terms}</p>
+                          <p className="text-gray-300 text-sm">{offer.additionalTerms}</p>
                         </div>
                       )}
 
                       {/* Counter Offer Status */}
-                      {offer.status === 'negotiating' && offer.latest_counter && (
+                      {offer.status === 'negotiating' && offer.latestCounter && (
                         <div className="mb-6 p-4 rounded-lg bg-orange-500/10 border border-orange-500/30">
                           <div className="flex items-center gap-2 mb-3">
                             <TrendingUp className="h-5 w-5 text-orange-400" />
@@ -331,48 +331,48 @@ export default function CandidateOffersPage() {
                             <div className="flex justify-between items-center">
                               <span className="text-gray-400 text-sm">Your Counter Offer:</span>
                               <span className="text-xl font-bold text-orange-400">
-                                {offer.latest_counter.requested_currency} {offer.latest_counter.requested_salary.toLocaleString()}
-                                <span className="text-sm font-normal text-gray-400">/{offer.salary_type}</span>
+                                {offer.latestCounter.requestedCurrency} {offer.latestCounter.requestedSalary.toLocaleString()}
+                                <span className="text-sm font-normal text-gray-400">/{offer.salaryType}</span>
                               </span>
                             </div>
 
-                            {offer.latest_counter.candidate_message && (
+                            {offer.latestCounter.candidateMessage && (
                               <div className="pt-2 border-t border-white/10">
                                 <p className="text-gray-400 text-xs mb-1">Your Message:</p>
-                                <p className="text-gray-300 text-sm italic">"{offer.latest_counter.candidate_message}"</p>
+                                <p className="text-gray-300 text-sm italic">"{offer.latestCounter.candidateMessage}"</p>
                               </div>
                             )}
 
-                            {offer.latest_counter.status === 'pending' && (
+                            {offer.latestCounter.status === 'pending' && (
                               <div className="pt-2">
                                 <p className="text-gray-400 text-sm">⏳ Waiting for employer response...</p>
                               </div>
                             )}
 
-                            {offer.latest_counter.response_type === 'accepted' && offer.latest_counter.employer_response && (
+                            {offer.latestCounter.responseType === 'accepted' && offer.latestCounter.employerResponse && (
                               <div className="pt-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
                                 <p className="text-emerald-400 font-medium text-sm mb-1">🎉 Counter Accepted!</p>
-                                <p className="text-gray-300 text-sm">{offer.latest_counter.employer_response}</p>
+                                <p className="text-gray-300 text-sm">{offer.latestCounter.employerResponse}</p>
                               </div>
                             )}
 
-                            {offer.latest_counter.response_type === 'rejected' && offer.latest_counter.employer_response && (
+                            {offer.latestCounter.responseType === 'rejected' && offer.latestCounter.employerResponse && (
                               <div className="pt-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30">
                                 <p className="text-red-400 font-medium text-sm mb-1">❌ Counter Declined</p>
-                                <p className="text-gray-300 text-sm">{offer.latest_counter.employer_response}</p>
+                                <p className="text-gray-300 text-sm">{offer.latestCounter.employerResponse}</p>
                               </div>
                             )}
 
-                            {offer.latest_counter.response_type === 'revised' && offer.latest_counter.employer_response && (
+                            {offer.latestCounter.responseType === 'revised' && offer.latestCounter.employerResponse && (
                               <div className="pt-2 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
                                 <p className="text-cyan-400 font-medium text-sm mb-1">🔄 Revised Offer</p>
-                                <p className="text-gray-300 text-sm">{offer.latest_counter.employer_response}</p>
+                                <p className="text-gray-300 text-sm">{offer.latestCounter.employerResponse}</p>
                               </div>
                             )}
 
                             <div className="pt-2">
                               <p className="text-gray-500 text-xs">
-                                Submitted {new Date(offer.latest_counter.created_at).toLocaleDateString('en-US', {
+                                Submitted {new Date(offer.latestCounter.createdAt).toLocaleDateString('en-US', {
                                   month: 'short',
                                   day: 'numeric',
                                   year: 'numeric',
@@ -397,7 +397,7 @@ export default function CandidateOffersPage() {
                             ) : (
                               <>
                                 <CheckCircle className="h-4 w-4 mr-2" />
-                                {offer.status === 'negotiating' && offer.latest_counter?.response_type === 'accepted'
+                                {offer.status === 'negotiating' && offer.latestCounter?.responseType === 'accepted'
                                   ? 'Accept Counter Offer'
                                   : 'Accept Offer'}
                               </>
@@ -424,7 +424,7 @@ export default function CandidateOffersPage() {
                             Make Counter Offer
                           </Button>
                         )}
-                        {offer.status === 'negotiating' && offer.latest_counter?.status === 'pending' && (
+                        {offer.status === 'negotiating' && offer.latestCounter?.status === 'pending' && (
                           <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 text-center">
                             <p className="text-orange-400 text-sm">
                               Counter offer submitted. Waiting for employer response...
@@ -460,7 +460,7 @@ export default function CandidateOffersPage() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="text-lg font-semibold text-white">{offer.job_title}</h3>
+                          <h3 className="text-lg font-semibold text-white">{offer.jobTitle}</h3>
                           <div className="flex items-center gap-2 text-gray-400 text-sm">
                             <Building2 className="h-4 w-4" />
                             <span>{offer.company}</span>

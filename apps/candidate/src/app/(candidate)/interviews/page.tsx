@@ -28,18 +28,18 @@ import Link from 'next/link';
 
 interface Interview {
   id: string;
-  job_id: string;
-  job_title: string;
+  jobId: string;
+  jobTitle: string;
   company: string;
   type: string;
   status: string;
   outcome?: string;
-  scheduled_at?: string;
+  scheduledAt?: string;
   duration: number;
-  meeting_link?: string;
-  participant_join_url?: string;
+  meetingLink?: string;
+  participantJoinUrl?: string;
   notes?: string;
-  created_at: string;
+  createdAt: string;
 }
 
 export default function CandidateInterviewsPage() {
@@ -114,7 +114,7 @@ export default function CandidateInterviewsPage() {
       </div>
 
       {/* Preparation Tips Banner */}
-      {!loading && interviews.filter(i => i.scheduled_at && i.status === 'scheduled').length > 0 && (
+      {!loading && interviews.filter(i => i.scheduledAt && i.status === 'scheduled').length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -142,7 +142,7 @@ export default function CandidateInterviewsPage() {
         <Card className="bg-white/5 border-white/10">
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-orange-400">
-              {interviews.filter(i => i.status === 'scheduled' && !i.scheduled_at).length}
+              {interviews.filter(i => i.status === 'scheduled' && !i.scheduledAt).length}
             </p>
             <p className="text-gray-400 text-sm">Awaiting Schedule</p>
           </CardContent>
@@ -150,7 +150,7 @@ export default function CandidateInterviewsPage() {
         <Card className="bg-white/5 border-white/10">
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-cyan-400">
-              {interviews.filter(i => i.status === 'scheduled' && i.scheduled_at).length}
+              {interviews.filter(i => i.status === 'scheduled' && i.scheduledAt).length}
             </p>
             <p className="text-gray-400 text-sm">Scheduled</p>
           </CardContent>
@@ -169,14 +169,14 @@ export default function CandidateInterviewsPage() {
       {!loading && interviews.length > 0 && (() => {
         // Find the next upcoming interview
         const upcomingInterviews = interviews
-          .filter(i => i.scheduled_at && i.status === 'scheduled' && new Date(i.scheduled_at) > new Date())
-          .sort((a, b) => new Date(a.scheduled_at!).getTime() - new Date(b.scheduled_at!).getTime());
+          .filter(i => i.scheduledAt && i.status === 'scheduled' && new Date(i.scheduledAt) > new Date())
+          .sort((a, b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime());
 
         const nextInterview = upcomingInterviews[0];
 
         if (!nextInterview) return null;
 
-        const interviewDate = new Date(nextInterview.scheduled_at!);
+        const interviewDate = new Date(nextInterview.scheduledAt!);
         const now = new Date();
         const hoursUntil = Math.floor((interviewDate.getTime() - now.getTime()) / (1000 * 60 * 60));
         const minutesUntil = Math.floor((interviewDate.getTime() - now.getTime()) / (1000 * 60));
@@ -224,7 +224,7 @@ export default function CandidateInterviewsPage() {
                       </Badge>
                     )}
                   </div>
-                  <h3 className="text-base sm:text-xl font-bold text-white">{nextInterview.job_title}</h3>
+                  <h3 className="text-base sm:text-xl font-bold text-white">{nextInterview.jobTitle}</h3>
                   <p className="text-gray-400">{nextInterview.company}</p>
                   <div className="flex items-center gap-4 mt-2 text-sm">
                     <span className="text-white flex items-center gap-1">
@@ -259,7 +259,7 @@ export default function CandidateInterviewsPage() {
                   variant="outline"
                   className="border-white/20 text-gray-300 hover:bg-white/10"
                   onClick={() => {
-                    const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(nextInterview.job_title + ' Interview')}&dates=${interviewDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${new Date(interviewDate.getTime() + nextInterview.duration * 60000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent('Interview with ' + nextInterview.company)}`;
+                    const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(nextInterview.jobTitle + ' Interview')}&dates=${interviewDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${new Date(interviewDate.getTime() + nextInterview.duration * 60000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent('Interview with ' + nextInterview.company)}`;
                     window.open(googleCalUrl, '_blank');
                   }}
                 >
@@ -268,13 +268,13 @@ export default function CandidateInterviewsPage() {
                 </Button>
 
                 {/* Join Button */}
-                {(nextInterview.participant_join_url || nextInterview.meeting_link) && (
+                {(nextInterview.participantJoinUrl || nextInterview.meetingLink) && (
                   <Button
                     className={`${isNow
                       ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/30'
                       : 'bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700'
                       } text-white px-6`}
-                    onClick={() => window.open(nextInterview.participant_join_url || nextInterview.meeting_link!, '_blank')}
+                    onClick={() => window.open(nextInterview.participantJoinUrl || nextInterview.meetingLink!, '_blank')}
                   >
                     <Video className="h-4 w-4 mr-2" />
                     {isNow ? 'Join Now!' : 'Join Meeting'}
@@ -314,8 +314,8 @@ export default function CandidateInterviewsPage() {
           {(() => {
             // Find the hero interview ID to exclude it from the list
             const upcomingInterviews = interviews
-              .filter(i => i.scheduled_at && i.status === 'scheduled' && new Date(i.scheduled_at) > new Date())
-              .sort((a, b) => new Date(a.scheduled_at!).getTime() - new Date(b.scheduled_at!).getTime());
+              .filter(i => i.scheduledAt && i.status === 'scheduled' && new Date(i.scheduledAt) > new Date())
+              .sort((a, b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime());
             const heroInterviewId = upcomingInterviews[0]?.id;
             
             // Filter out the hero interview from the list
@@ -331,24 +331,24 @@ export default function CandidateInterviewsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className={`border-white/10 transition-all ${interview.status === 'scheduled' && !interview.scheduled_at
+                <Card className={`border-white/10 transition-all ${interview.status === 'scheduled' && !interview.scheduledAt
                   ? 'bg-orange-500/5 border-orange-500/30'
                   : 'bg-white/5 hover:border-cyan-500/30'
                   }`}>
                   <CardContent className="p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                       <div className="flex items-start gap-3 sm:gap-4">
-                        <div className={`p-3 rounded-xl ${interview.status === 'scheduled' && !interview.scheduled_at
+                        <div className={`p-3 rounded-xl ${interview.status === 'scheduled' && !interview.scheduledAt
                           ? 'bg-orange-500/20'
                           : 'bg-cyan-500/20'
                           }`}>
-                          <TypeIcon className={`h-6 w-6 ${interview.status === 'scheduled' && !interview.scheduled_at
+                          <TypeIcon className={`h-6 w-6 ${interview.status === 'scheduled' && !interview.scheduledAt
                             ? 'text-orange-400'
                             : 'text-cyan-400'
                             }`} />
                         </div>
                         <div>
-                          <h3 className="text-base sm:text-xl font-semibold text-white mb-1">{interview.job_title}</h3>
+                          <h3 className="text-base sm:text-xl font-semibold text-white mb-1">{interview.jobTitle}</h3>
                           <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
                             <Building2 className="h-4 w-4" />
                             <span>{interview.company}</span>
@@ -362,11 +362,11 @@ export default function CandidateInterviewsPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        {interview.scheduled_at ? (
+                        {interview.scheduledAt ? (
                           <div className="space-y-1">
                             <div className="flex items-center gap-2 text-white font-medium">
                               <Calendar className="h-4 w-4 text-gray-400" />
-                              {new Date(interview.scheduled_at).toLocaleDateString('en-US', {
+                              {new Date(interview.scheduledAt).toLocaleDateString('en-US', {
                                 weekday: 'short',
                                 month: 'short',
                                 day: 'numeric'
@@ -374,7 +374,7 @@ export default function CandidateInterviewsPage() {
                             </div>
                             <div className="flex items-center gap-2 text-gray-400 text-sm">
                               <Clock className="h-4 w-4" />
-                              {new Date(interview.scheduled_at).toLocaleTimeString([], {
+                              {new Date(interview.scheduledAt).toLocaleTimeString([], {
                                 hour: '2-digit',
                                 minute: '2-digit'
                               })}
@@ -386,11 +386,11 @@ export default function CandidateInterviewsPage() {
                             Awaiting schedule confirmation
                           </p>
                         )}
-                        {(interview.participant_join_url || interview.meeting_link) && interview.status === 'scheduled' && (
+                        {(interview.participantJoinUrl || interview.meetingLink) && interview.status === 'scheduled' && (
                           <Button
                             size="sm"
                             className="mt-3 bg-gradient-to-r from-cyan-500 to-purple-600"
-                            onClick={() => window.open(interview.participant_join_url || interview.meeting_link!, '_blank')}
+                            onClick={() => window.open(interview.participantJoinUrl || interview.meetingLink!, '_blank')}
                           >
                             <ExternalLink className="h-4 w-4 mr-1" />
                             Join Meeting
@@ -398,7 +398,7 @@ export default function CandidateInterviewsPage() {
                         )}
                       </div>
                     </div>
-                    {interview.status === 'scheduled' && !interview.scheduled_at && (
+                    {interview.status === 'scheduled' && !interview.scheduledAt && (
                       <div className="mt-4 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
                         <p className="text-orange-300 text-sm">
                           🎉 <span className="font-medium">Great news!</span> The recruiter has requested an interview with you.

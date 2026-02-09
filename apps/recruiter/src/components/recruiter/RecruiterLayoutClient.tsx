@@ -68,8 +68,8 @@ export default function RecruiterLayoutClient({
     localStorage.setItem('recruiter-sidebar-collapsed', String(newState));
   };
 
-  // Skip auth check for login/signup/demo pages
-  const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/demo';
+  // Skip auth check for login/signup/demo/command-center pages
+  const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/demo' || pathname === '/command-center';
 
   // Skip verification check for specific pages where redirects go
   const isVerificationPage = pathname?.startsWith('/signup/documents') ||
