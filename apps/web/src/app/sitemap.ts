@@ -20,10 +20,14 @@ function getSupabase(): SupabaseClient | null {
     return null;
   }
   if (!_supabase) {
-    _supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
+    try {
+      _supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+    } catch {
+      return null;
+    }
   }
   return _supabase;
 }
