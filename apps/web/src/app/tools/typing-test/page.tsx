@@ -160,7 +160,7 @@ export default function TypingTestPage() {
             className="max-w-5xl mx-auto space-y-8"
           >
             {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 className="bg-gradient-to-br from-gray-900/90 to-black rounded-2xl p-6 border-2 border-gray-800/50 text-center shadow-[0_20px_70px_-15px_rgba(0,0,0,0.8)]"

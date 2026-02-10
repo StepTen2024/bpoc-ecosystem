@@ -206,7 +206,7 @@ export default function OutboundDashboard() {
       {/* Campaign Stats */}
       <div className="bg-slate-900/50 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
         <h2 className="text-xl font-bold text-white mb-4">Campaign Overview</h2>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {campaignStats.map((stat) => (
             <div key={stat.label} className="text-center">
               <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>

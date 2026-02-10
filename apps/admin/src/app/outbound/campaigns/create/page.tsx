@@ -167,7 +167,7 @@ export default function CreateCampaignPage() {
 
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-2">Email Template</label>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { value: 'migration', label: 'Migration' },
               { value: 'follow_up', label: 'Follow-Up' },

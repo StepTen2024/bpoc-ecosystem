@@ -220,7 +220,7 @@ export default function PendingVerificationPage() {
             </div>
 
             {/* Timeline */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-400 mb-1">&lt;1 hour</div>
                 <div className="text-xs text-gray-500">Average review time</div>

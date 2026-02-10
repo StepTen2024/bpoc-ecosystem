@@ -48,7 +48,7 @@ export default function AdminOnboardingPage() {
         <p className="text-gray-400">Review and approve pending onboarding submissions</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Card className="bg-white/5 border-white/10 p-4">
           <div className="flex items-center gap-3">
             <Users className="h-8 w-8 text-cyan-400" />

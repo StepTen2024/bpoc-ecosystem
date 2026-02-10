@@ -176,7 +176,7 @@ export default function AdminAuditLogPage() {
 
       {/* Stats Dashboard */}
       {stats && (
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Total Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

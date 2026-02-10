@@ -514,7 +514,7 @@ export default function RecruiterJobsPage() {
                       {/* Stats & Actions */}
                       <div className="flex items-center gap-6 lg:gap-8">
                         {/* Performance Stats */}
-                        <div className="grid grid-cols-3 gap-6">
+                        <div className="hidden sm:grid grid-cols-3 gap-6">
                           <div className="text-center">
                             <div className="flex items-center justify-center gap-1 text-cyan-400 mb-1">
                               <Eye className="h-4 w-4" />

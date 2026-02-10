@@ -278,7 +278,7 @@ export default function RecruitersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
           { label: 'Total', value: stats.total, color: 'bg-white/5 border-white/10' },
           { label: 'Pending', value: stats.pending, color: 'bg-orange-500/5 border-orange-500/20', highlight: true },

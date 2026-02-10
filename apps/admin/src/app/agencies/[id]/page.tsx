@@ -497,7 +497,7 @@ export default function AdminAgencyDetailPage() {
                 </div>
               </CardHeader>
               <CardContent className="relative z-10 p-6">
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Column 1: Status + Extracted Profile */}
                   <div className="space-y-5">
                     {/* Verification Status */}
@@ -837,9 +837,9 @@ export default function AdminAgencyDetailPage() {
         )
       ) : null}
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Clients */}
-        <div className="col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           <Card className="bg-white/5 border-white/10">
             <CardHeader className="border-b border-white/10 flex flex-row items-center justify-between">
               <CardTitle className="text-white flex items-center gap-2">

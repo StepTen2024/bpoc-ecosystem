@@ -102,7 +102,7 @@ export default function BillingPage() {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-purple-500/20 to-pink-600/10 border-purple-500/30">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">

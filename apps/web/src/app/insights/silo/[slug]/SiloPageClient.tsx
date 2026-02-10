@@ -469,7 +469,7 @@ export default function SiloPageClient({
                 {/* Section Images */}
                 {(pillarPost.content_image0 || pillarPost.content_image1 || pillarPost.content_image2) && (
                   <div className="px-6 pb-6 md:px-8 md:pb-8">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       {pillarPost.content_image0 && (
                         <img src={pillarPost.content_image0} alt="Section 1" className="rounded-lg w-full h-32 object-cover" />
                       )}

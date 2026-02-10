@@ -153,7 +153,7 @@ export default function InterviewsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <Card className="bg-white/5 border-white/10">
           <CardContent className="p-3 text-center">
             <p className="text-xl font-bold text-cyan-400">{statusCounts['scheduled'] || 0}</p>

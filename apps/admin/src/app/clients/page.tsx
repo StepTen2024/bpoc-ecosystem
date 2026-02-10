@@ -141,7 +141,7 @@ export default function AdminClientsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Total Clients', value: stats.total, icon: Building2, color: 'bg-white/5 border-white/10' },
           { label: 'Active', value: stats.active, icon: Building2, color: 'bg-emerald-500/5 border-emerald-500/20' },
@@ -161,7 +161,7 @@ export default function AdminClientsPage() {
       </div>
 
       {/* Verification Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: 'Verified ✅', value: stats.verified, icon: ShieldCheck, color: 'bg-emerald-500/5 border-emerald-500/20', desc: 'Online presence confirmed' },
           { label: 'Unverified ⚠️', value: stats.unverified, icon: ShieldQuestion, color: 'bg-amber-500/5 border-amber-500/20', desc: 'Limited info found' },

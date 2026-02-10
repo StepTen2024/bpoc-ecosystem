@@ -185,7 +185,7 @@ export default function UserDetailPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/10">
             <div>
               <p className="text-gray-500 text-sm">User Type</p>
               <Badge className="mt-1 capitalize">{userType}</Badge>

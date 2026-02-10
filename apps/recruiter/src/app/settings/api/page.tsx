@@ -847,7 +847,7 @@ print(data)`;
             </div>
 
             {/* Quick Stats */}
-            <div className="mt-8 grid grid-cols-4 gap-4">
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
                 <p className="text-3xl font-bold text-white">
                   {API_ENDPOINTS.reduce((sum, c) => sum + c.endpoints.length, 0)}

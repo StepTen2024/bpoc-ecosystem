@@ -174,7 +174,7 @@ function OfferDetails({ offer }: { offer: Offer }) {
       </h4>
 
       {/* Compensation */}
-      <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-white/5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-lg bg-white/5">
         <div>
           <p className="text-xs text-gray-500 mb-1">Offered Salary</p>
           <p className="text-white font-semibold">{offer.currency} {offer.salaryOffered.toLocaleString()}</p>
@@ -544,7 +544,7 @@ export default function RecruiterOffersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <Card className="bg-white/5 backdrop-blur-xl border-white/10">
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-white">{stats.total}</p>

@@ -374,7 +374,7 @@ export default function CreateJobPage() {
                 </div>
 
                 {/* Quick Settings */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Work Type</label>
                     <select
@@ -553,7 +553,7 @@ export default function CreateJobPage() {
               </div>
               
               <div className="space-y-6">
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Min Salary</label>
                     <div className="relative">

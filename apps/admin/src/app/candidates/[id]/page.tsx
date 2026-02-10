@@ -241,9 +241,9 @@ export default function AdminCandidateDetailPage() {
         </Card>
       </motion.div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
-        <div className="col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Bio */}
           {candidate.profile?.bio && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>

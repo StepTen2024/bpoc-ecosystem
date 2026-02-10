@@ -577,7 +577,7 @@ export default function ResumeAnalysisPage() {
                 <Progress value={progress} className="h-2 bg-gray-800" />
               </div>
               
-              <div className="mt-6 grid grid-cols-4 gap-3">
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
                 {['Scoring', 'Strengths', 'Career', 'Summary'].map((step, i) => (
                   <div 
                     key={i}

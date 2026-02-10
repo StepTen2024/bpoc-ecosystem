@@ -148,7 +148,7 @@ export default function UsersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-7 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-3">
         {[
           { label: 'Total Users', value: stats.total, color: 'bg-white/5 border-white/10' },
           { label: 'Candidates', value: stats.candidates, color: 'bg-cyan-500/5 border-cyan-500/20' },
