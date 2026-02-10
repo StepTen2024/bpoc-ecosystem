@@ -2,9 +2,19 @@ import { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import TrainingSiloClient from './TrainingSiloClient';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return null;
+  }
+  try {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+  } catch {
+    return null;
+  }
+}
 
 export const revalidate = 0;
 
@@ -23,6 +33,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 async function getSiloData() {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
   const { data: silo } = await supabase.from('insights_silos').select('*').eq('slug', 'training-and-certifications').eq('is_active', true).single();
   if (!silo) return null;
 

@@ -2,9 +2,19 @@ import { notFound } from 'next/navigation';
 import SiloArticleClient from './SiloArticleClient';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return null;
+  }
+  try {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+  } catch {
+    return null;
+  }
+}
 
 // Silo color mapping
 const SILO_COLORS: Record<string, string> = {
@@ -24,6 +34,9 @@ interface PillarArticlePageProps {
 }
 
 export async function getSiloArticle(siloSlug: string, articleSlug: string) {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
   // First, get the silo by slug to get its ID
   const { data: silo } = await supabase
     .from('insights_silos')
@@ -57,6 +70,9 @@ export async function getSiloArticle(siloSlug: string, articleSlug: string) {
 }
 
 export async function getSiloMetadata(siloSlug: string, articleSlug: string) {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
   // First, get the silo by slug
   const { data: silo } = await supabase
     .from('insights_silos')
@@ -97,13 +113,14 @@ export default async function PillarArticlePage({ siloSlug, articleSlug }: Pilla
   }
 
   // Fetch related articles from the same silo
-  const { data: relatedPosts } = await supabase
+  const supabase = getSupabase();
+  const { data: relatedPosts } = supabase ? await supabase
     .from('insights_posts')
     .select('id, title, slug, description, hero_url, category, created_at')
     .eq('silo_id', post.silo_id)
     .eq('is_published', true)
     .neq('id', post.id)
-    .limit(4);
+    .limit(4) : { data: null };
 
   return (
     <SiloArticleClient

@@ -2,9 +2,15 @@ import { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import SalarySiloClient from './SalarySiloClient';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return null;
+  }
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+}
 
 export const revalidate = 0;
 
@@ -23,6 +29,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 async function getSiloData() {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
   const { data: silo } = await supabase
     .from('insights_silos')
     .select('*')

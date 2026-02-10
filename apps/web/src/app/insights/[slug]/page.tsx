@@ -3,10 +3,19 @@ import { notFound } from 'next/navigation';
 import InsightArticleClient from './InsightArticleClient';
 import { createClient } from '@supabase/supabase-js';
 
-// Server-side Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return null;
+  }
+  try {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+  } catch {
+    return null;
+  }
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -16,11 +25,14 @@ export const revalidate = 0; // No cache - always fetch fresh data
 
 // Generate static params for all articles (for SSG/ISR)
 export async function generateStaticParams() {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+
   const { data: posts } = await supabase
     .from('insights_posts')
     .select('slug')
     .eq('is_published', true);
-    
+
   return (posts || []).map((post) => ({
     slug: post.slug,
   }));
@@ -30,12 +42,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   
+  const supabase = getSupabase();
+  if (!supabase) return { title: 'Article Not Found | BPOC.IO' };
+
   const { data: post } = await supabase
     .from('insights_posts')
     .select('*, seo:seo_metadata(*)')
     .eq('slug', slug)
     .single();
-  
+
   if (!post) {
     return {
       title: 'Article Not Found | BPOC.IO',
@@ -78,6 +93,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function InsightArticlePage({ params }: Props) {
   const { slug } = await params;
   
+  const supabase = getSupabase();
+  if (!supabase) notFound();
+
   const { data: post } = await supabase
     .from('insights_posts')
     .select('*, seo:seo_metadata(*)')
