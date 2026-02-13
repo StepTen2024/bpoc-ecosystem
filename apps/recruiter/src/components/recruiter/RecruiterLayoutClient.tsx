@@ -15,6 +15,7 @@ interface Recruiter {
   last_name: string;
   email: string;
   agency_id: string;
+  avatar_url?: string;
   verificationStatus?: string;
   agency?: {
     id: string;

@@ -366,7 +366,7 @@ async function getAgencyTier(agency_id: string): Promise<string> {
   const { data } = await supabaseAdmin
     .from('agencies')
     .select('api_tier')
-    .eq('id', agencyId)
+    .eq('id', agency_id)
     .single();
   
   return data?.api_tier || 'free';

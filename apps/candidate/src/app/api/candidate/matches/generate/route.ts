@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { calculateJobMatch, saveJobMatch } from '@/lib/matching/match-service';
+
+const ADMIN_API_URL = process.env.ADMIN_API_URL || 'http://localhost:3003';
 
 /**
  * POST /api/candidate/matches/generate
  * Generate job matches for the authenticated candidate
- * Called when a candidate has no matches and wants to generate them
+ * Calls the admin matching engine
  */
 export async function POST(request: NextRequest) {
     try {
@@ -21,120 +22,61 @@ export async function POST(request: NextRequest) {
         const userId = session.user.id;
         console.log('🎯 Generating matches for candidate:', userId);
 
-        // Check if candidate already has matches
-        const { count: existingMatchCount } = await supabaseAdmin
+        // Check if candidate already has recent matches (within 24h)
+        const { data: recentMatch } = await supabaseAdmin
             .from('job_matches')
-            .select('*', { count: 'exact', head: true })
-            .eq('candidate_id', userId);
+            .select('analyzed_at')
+            .eq('candidate_id', userId)
+            .order('analyzed_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
 
-        if (existingMatchCount && existingMatchCount > 10) {
-            return NextResponse.json({
-                success: true,
-                message: 'Matches already exist',
-                matchCount: existingMatchCount,
-                generated: 0
-            });
-        }
+        if (recentMatch?.analyzed_at) {
+            const lastGen = new Date(recentMatch.analyzed_at);
+            const hoursSince = (Date.now() - lastGen.getTime()) / (1000 * 60 * 60);
+            
+            if (hoursSince < 24) {
+                // Return existing matches
+                const { count } = await supabaseAdmin
+                    .from('job_matches')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('candidate_id', userId);
 
-        // Get candidate data from candidate_truth view
-        const { data: candidateData, error: candidateError } = await supabaseAdmin
-            .from('candidate_truth')
-            .select('*')
-            .eq('id', userId)
-            .single();
-
-        if (candidateError || !candidateData) {
-            console.log('⚠️ Could not fetch candidate truth:', candidateError?.message);
-            return NextResponse.json({
-                error: 'Complete your profile first to generate matches',
-                code: 'PROFILE_INCOMPLETE'
-            }, { status: 400 });
-        }
-
-        // Get active jobs
-        const { data: jobs, error: jobsError } = await supabaseAdmin
-            .from('jobs')
-            .select('*')
-            .limit(50);
-
-        if (jobsError || !jobs?.length) {
-            console.log('⚠️ No active jobs found');
-            return NextResponse.json({
-                success: true,
-                message: 'No active jobs available',
-                generated: 0
-            });
-        }
-
-        // Get job skills
-        const jobIds = jobs.map(j => j.id);
-        const { data: allJobSkills } = await supabaseAdmin
-            .from('job_skills')
-            .select('job_id, skill_name')
-            .in('job_id', jobIds);
-
-        const skillsByJob = new Map();
-        allJobSkills?.forEach(skill => {
-            if (!skillsByJob.has(skill.job_id)) {
-                skillsByJob.set(skill.job_id, []);
-            }
-            skillsByJob.get(skill.job_id).push({ skill_name: skill.skill_name });
-        });
-
-        jobs.forEach(job => {
-            (job as any).job_skills = skillsByJob.get(job.id) || [];
-        });
-
-        let matchesGenerated = 0;
-        let errors = 0;
-
-        for (const jobData of jobs) {
-            try {
-                const candidate = {
-                    id: candidateData.id,
-                    skills: Array.isArray(candidateData.skills) ? candidateData.skills : [],
-                    work_experiences: Array.isArray(candidateData.work_experiences) ? candidateData.work_experiences : [],
-                    expected_salary_min: candidateData.expected_salary_min,
-                    expected_salary_max: candidateData.expected_salary_max,
-                    experience_years: candidateData.experience_years || 0,
-                    preferred_shift: candidateData.preferred_shift,
-                    preferred_work_setup: candidateData.preferred_work_setup,
-                    work_status: candidateData.work_status,
-                };
-
-                const job = {
-                    id: jobData.id,
-                    title: jobData.title,
-                    description: jobData.description || '',
-                    requirements: jobData.requirements,
-                    salary_min: jobData.salary_min,
-                    salary_max: jobData.salary_max,
-                    currency: jobData.currency || 'PHP',
-                    skills: (jobData as any).job_skills?.map((s: any) => s.skill_name) || [],
-                    work_arrangement: jobData.work_arrangement,
-                    shift: jobData.shift,
-                };
-
-                const matchResult = await calculateJobMatch(candidate, job);
-                await saveJobMatch(userId, jobData.id, matchResult);
-                matchesGenerated++;
-
-                // Small delay to avoid rate limiting
-                await new Promise(resolve => setTimeout(resolve, 100));
-            } catch (err) {
-                console.error('Match error for job', jobData.id, err);
-                errors++;
+                return NextResponse.json({
+                    success: true,
+                    message: 'Using recent matches',
+                    matchCount: count || 0,
+                    generated: 0,
+                    cached: true,
+                });
             }
         }
 
-        console.log(`✅ Generated ${matchesGenerated} matches for ${userId}`);
+        // Call admin matching engine
+        const adminResponse = await fetch(`${ADMIN_API_URL}/api/matching/candidate-to-jobs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ candidateId: userId, limit: 50 }),
+        });
+
+        if (!adminResponse.ok) {
+            const error = await adminResponse.json();
+            console.error('Admin matching failed:', error);
+            return NextResponse.json({
+                error: error.error || 'Failed to generate matches',
+                code: error.code,
+            }, { status: adminResponse.status });
+        }
+
+        const result = await adminResponse.json();
+
+        console.log(`✅ Generated ${result.total || 0} matches for ${userId}`);
 
         return NextResponse.json({
             success: true,
-            message: `Generated ${matchesGenerated} job matches`,
-            generated: matchesGenerated,
-            errors,
-            total: jobs.length
+            message: `Generated ${result.total || 0} job matches`,
+            generated: result.total || 0,
+            matches: result.matches?.length || 0,
         });
 
     } catch (error: any) {

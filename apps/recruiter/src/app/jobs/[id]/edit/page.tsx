@@ -11,7 +11,8 @@ import {
   Building2,
   Save,
   CheckCircle,
-  Trash2
+  Trash2,
+  Users
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shared/ui/card';
 import { Button } from '@/components/shared/ui/button';
@@ -150,12 +151,20 @@ export default function EditJobPage() {
           <h1 className="text-3xl font-bold text-white">Edit Job</h1>
           <p className="text-gray-400 mt-1">Update your job posting details</p>
         </div>
-        {job?.client_name && (
-          <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/30">
-            <Building2 className="h-3 w-3 mr-1" />
-            {job.client_name}
-          </Badge>
-        )}
+        <div className="flex items-center gap-3">
+          <Link href={`/jobs/${jobId}/matches`}>
+            <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
+              <Users className="h-4 w-4 mr-2" />
+              Find Matching Candidates
+            </Button>
+          </Link>
+          {job?.client_name && (
+            <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/30">
+              <Building2 className="h-3 w-3 mr-1" />
+              {job.client_name}
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Status */}

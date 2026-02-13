@@ -177,7 +177,7 @@ export default function TalentPoolPage() {
         </motion.div>
       </div>
 
-      {/* AI Suggestions Banner */}
+      {/* AI Matching Banner */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -192,20 +192,22 @@ export default function TalentPoolPage() {
               </div>
               <div className="flex-1">
                 <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                  AI-Powered Matching
+                  AI-Powered Job Matching
                   <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
                     <Zap className="h-3 w-3 mr-1" />
                     Beta
                   </Badge>
                 </h3>
                 <p className="text-gray-400 text-sm">
-                  Our AI analyzes skills, experience, and personality traits to find your perfect match
+                  Select a job to find the best matching candidates based on skills, experience, and preferences
                 </p>
               </div>
-              <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 shadow-lg shadow-purple-500/25">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Get AI Recommendations
-              </Button>
+              <Link href="/jobs">
+                <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 shadow-lg shadow-purple-500/25">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Match Candidates to Job
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

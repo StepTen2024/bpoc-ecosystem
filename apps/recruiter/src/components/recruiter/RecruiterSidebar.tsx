@@ -75,6 +75,7 @@ interface RecruiterSidebarProps {
     email: string;
     id?: string;
     agency_id?: string;
+    avatar_url?: string;
     agency?: {
       name: string;
       logo_url?: string;
@@ -359,10 +360,13 @@ export default function RecruiterSidebar({
       {/* User Profile */}
       <div className="p-4 border-t border-white/10">
         <div className={`flex items-center gap-3 mb-3 ${collapsed ? 'justify-center' : ''}`}>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
-            {recruiter?.first_name?.[0] || 'R'}
-            {recruiter?.last_name?.[0] || ''}
-          </div>
+          <Avatar className="h-10 w-10 flex-shrink-0">
+            <AvatarImage src={recruiter?.avatar_url} alt={`${recruiter?.first_name} ${recruiter?.last_name}`} />
+            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-amber-600 text-white font-semibold">
+              {recruiter?.first_name?.[0] || 'R'}
+              {recruiter?.last_name?.[0] || ''}
+            </AvatarFallback>
+          </Avatar>
           <AnimatePresence>
             {!collapsed && (
               <motion.div

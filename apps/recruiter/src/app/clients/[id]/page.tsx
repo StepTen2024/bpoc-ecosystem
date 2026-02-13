@@ -17,7 +17,10 @@ import {
   Edit,
   X,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Upload,
+  Camera,
+  Trash2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shared/ui/card';
 import { Button } from '@/components/shared/ui/button';
@@ -90,7 +93,16 @@ export default function ClientDetailPage() {
     primaryContactPhone: '',
     notes: '',
     status: 'active',
+    companyName: '',
+    companyEmail: '',
+    companyPhone: '',
+    companyWebsite: '',
+    companyIndustry: '',
+    companyDescription: '',
   });
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     if (user?.id && clientId) {
@@ -135,6 +147,31 @@ export default function ClientDetailPage() {
     setSaving(true);
     try {
       const token = await getSessionToken();
+      
+      // If there's a logo file, upload it first
+      let logoUrl = client?.company?.logo_url;
+      if (logoFile) {
+        setUploadingLogo(true);
+        const logoFormData = new FormData();
+        logoFormData.append('logo', logoFile);
+        logoFormData.append('companyId', client?.company?.id || '');
+        
+        const logoResponse = await fetch('/api/recruiter/clients/upload-logo', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'x-user-id': user?.id || '',
+          },
+          body: logoFormData,
+        });
+        
+        if (logoResponse.ok) {
+          const logoData = await logoResponse.json();
+          logoUrl = logoData.url;
+        }
+        setUploadingLogo(false);
+      }
+      
       const response = await fetch(`/api/recruiter/clients/${clientId}`, {
         method: 'PATCH',
         headers: {
@@ -142,12 +179,17 @@ export default function ClientDetailPage() {
           'Authorization': `Bearer ${token}`,
           'x-user-id': user?.id || '',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          logoUrl,
+        }),
       });
 
       if (response.ok) {
         toast.success('Client updated successfully');
         setEditing(false);
+        setLogoFile(null);
+        setLogoPreview(null);
         fetchClient();
       } else {
         const error = await response.json();
@@ -237,12 +279,40 @@ export default function ClientDetailPage() {
         <Card className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 border-orange-500/30">
           <CardContent className="p-8">
             <div className="flex items-start gap-6">
-              <Avatar className="h-20 w-20 rounded-xl">
-                <AvatarImage src={client.company?.logo_url} />
-                <AvatarFallback className="bg-gradient-to-br from-orange-500 to-amber-600 text-white text-2xl rounded-xl">
-                  {client.company?.name?.substring(0, 2).toUpperCase() || 'CO'}
-                </AvatarFallback>
-              </Avatar>
+              {/* Logo with upload capability */}
+              <div className="relative group">
+                <Avatar className="h-20 w-20 rounded-xl">
+                  <AvatarImage src={logoPreview || client.company?.logo_url} />
+                  <AvatarFallback className="bg-gradient-to-br from-orange-500 to-amber-600 text-white text-2xl rounded-xl">
+                    {client.company?.name?.substring(0, 2).toUpperCase() || 'CO'}
+                  </AvatarFallback>
+                </Avatar>
+                {editing && (
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setLogoFile(file);
+                          setLogoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                    <Camera className="h-6 w-6 text-white" />
+                  </label>
+                )}
+                {logoPreview && editing && (
+                  <button
+                    onClick={() => { setLogoFile(null); setLogoPreview(null); }}
+                    className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
               
               <div className="flex-1">
                 <div className="flex items-start justify-between">

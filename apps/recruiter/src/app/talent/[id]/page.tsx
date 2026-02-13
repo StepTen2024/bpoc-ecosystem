@@ -13,15 +13,13 @@ import {
   Star,
   FileText,
   Brain,
-  Gamepad2,
   Loader2,
-  Download,
-  Calendar,
-  Clock,
   Award,
   Target,
   X,
-  ExternalLink
+  ExternalLink,
+  Github,
+  Linkedin
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shared/ui/card';
 import { Button } from '@/components/shared/ui/button';
@@ -51,8 +49,30 @@ interface CandidateProfile {
     targetRole?: string;
     expectedSalary?: number;
     availability?: string;
+    linkedin_url?: string;
+    portfolio_url?: string;
+    githubUrl?: string;
   };
   skills: string[];
+  // Work experiences from candidate_truth
+  workExperiences?: Array<{
+    id?: string;
+    job_title: string;
+    company_name: string;
+    start_date?: string;
+    end_date?: string;
+    is_current?: boolean;
+    description?: string;
+  }>;
+  // Education from candidate_truth
+  educations?: Array<{
+    id?: string;
+    degree: string;
+    school_name: string;
+    field_of_study?: string;
+    start_year?: number;
+    end_year?: number;
+  }>;
   resume?: {
     id: string;
     file_name: string;
@@ -292,6 +312,42 @@ export default function CandidateProfilePage() {
                       {candidate.location}
                     </span>
                   )}
+                  {candidate.profile?.linkedin_url && (
+                    <a 
+                      href={candidate.profile.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
+                    >
+                      <Linkedin className="h-4 w-4" />
+                      LinkedIn
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                  {candidate.profile?.githubUrl && (
+                    <a 
+                      href={candidate.profile.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-gray-400 hover:text-white"
+                    >
+                      <Github className="h-4 w-4" />
+                      GitHub
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                  {candidate.profile?.portfolio_url && (
+                    <a 
+                      href={candidate.profile.portfolio_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-orange-400 hover:text-orange-300"
+                    >
+                      <Star className="h-4 w-4" />
+                      Portfolio
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
                 </div>
 
                 {/* Quick Stats */}
@@ -342,6 +398,71 @@ export default function CandidateProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-300 leading-relaxed">{candidate.profile.bio}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Work Experience */}
+          {candidate.workExperiences && candidate.workExperiences.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
+              <Card className="bg-white/5 border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Briefcase className="h-5 w-5 text-orange-400" />
+                    Work Experience
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {candidate.workExperiences.map((exp, idx) => (
+                    <div key={exp.id || idx} className="relative pl-4 border-l-2 border-orange-500/30">
+                      <div className="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-orange-500" />
+                      <h4 className="text-white font-medium">{exp.job_title}</h4>
+                      <p className="text-orange-400 text-sm">{exp.company_name}</p>
+                      {(exp.start_date || exp.end_date) && (
+                        <p className="text-gray-500 text-xs mt-1">
+                          {exp.start_date ? new Date(exp.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''} 
+                          {' — '}
+                          {exp.is_current ? 'Present' : exp.end_date ? new Date(exp.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''}
+                        </p>
+                      )}
+                      {exp.description && (
+                        <p className="text-gray-400 text-sm mt-2">{exp.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Education */}
+          {candidate.educations && candidate.educations.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }}>
+              <Card className="bg-white/5 border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Award className="h-5 w-5 text-cyan-400" />
+                    Education
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {candidate.educations.map((edu, idx) => (
+                    <div key={edu.id || idx} className="flex justify-between items-start">
+                      <div>
+                        <h4 className="text-white font-medium">{edu.degree}</h4>
+                        <p className="text-cyan-400 text-sm">{edu.school_name}</p>
+                        {edu.field_of_study && (
+                          <p className="text-gray-500 text-xs">{edu.field_of_study}</p>
+                        )}
+                      </div>
+                      {(edu.start_year || edu.end_year) && (
+                        <span className="text-gray-500 text-sm">
+                          {edu.start_year && edu.end_year ? `${edu.start_year} - ${edu.end_year}` : edu.end_year || edu.start_year}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             </motion.div>
@@ -469,7 +590,7 @@ export default function CandidateProfilePage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Resume */}
+          {/* Resume Info (no download - everything shown inline) */}
           {candidate.resume && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
               <Card className="bg-white/5 border-white/10">
@@ -486,10 +607,9 @@ export default function CandidateProfilePage() {
                       Uploaded {new Date(candidate.resume.uploadedAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <Button className="w-full mt-4 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Resume
-                  </Button>
+                  <p className="text-gray-500 text-xs mt-3 text-center">
+                    Experience & education shown above
+                  </p>
                 </CardContent>
               </Card>
             </motion.div>

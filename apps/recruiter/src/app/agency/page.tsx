@@ -980,7 +980,7 @@ export default function AgencyPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => router.push('/signup/documents')}
+                onClick={() => router.push('/agency/documents')}
                 className="border-orange-500/30 text-orange-400 hover:bg-orange-500/10 hover:text-orange-300"
               >
                 <Upload className="h-3.5 w-3.5 mr-2" />

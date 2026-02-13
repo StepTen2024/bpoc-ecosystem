@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
         email,
         first_name,
         last_name,
+        avatar_url,
         role,
         is_active,
         verification_status,
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
             email,
             first_name,
             last_name,
+            avatar_url,
             role,
             is_active,
             verification_status,
@@ -122,6 +124,7 @@ export async function POST(request: NextRequest) {
         email: recruiter.email,
         first_name: recruiter.first_name,
         last_name: recruiter.last_name,
+        avatar_url: recruiter.avatar_url,
         role: recruiter.role,
         verificationStatus: recruiter.verification_status,
         permissions: {
